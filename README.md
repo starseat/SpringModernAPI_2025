@@ -14,7 +14,7 @@
 - 멀티레이어 아키텍처는 **DDD(Domain-Driven Design)** 으로 알려진 아키텍처 스타일의 기본 빌딩 블록
 - 개발 방법론 중 상향식 접근 방식(bottom-to-top approach) 사용
 
-### 프레젠테이션 레이어[.gitignore](..%2Fstudy%2FSpringModernAPI%2FSpringModernAPI%2F.gitignore)
+### 프레젠테이션 레이어
 
 - 사용자 인터페이스(UI) 담당
 
