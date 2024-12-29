@@ -2,6 +2,10 @@
 
 [스프링 6와 스프링 부트 3로 배우는 모던 API 개발](https://product.kyobobook.co.kr/detail/S000214875784) 실습
 
+- 홈페이지: [https://wikibook.co.kr/spring-api-dev/](https://wikibook.co.kr/spring-api-dev/)
+- github: [https://github.com/wikibook/spring-api-dev](https://github.com/wikibook/spring-api-dev)
+- 원서: [https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3](https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3)
+
 ![스프링 6와 스프링 부트 3로 배우는 모던 API 개발](https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791158395384.jpg)
 
 ## Service Design
@@ -10,7 +14,7 @@
 - 멀티레이어 아키텍처는 **DDD(Domain-Driven Design)** 으로 알려진 아키텍처 스타일의 기본 빌딩 블록
 - 개발 방법론 중 상향식 접근 방식(bottom-to-top approach) 사용
 
-### 프레젠테이션 레이어
+### 프레젠테이션 레이어[.gitignore](..%2Fstudy%2FSpringModernAPI%2FSpringModernAPI%2F.gitignore)
 
 - 사용자 인터페이스(UI) 담당
 
