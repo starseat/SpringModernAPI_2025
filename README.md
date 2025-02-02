@@ -13,17 +13,18 @@
 - OpenAPI 명세 (OpenAPI Specification, OAS)
   - [OAS v3.0.3 사용](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md)
 - [예제 소스 내의 OAS 명세](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/resources/api/openapi.yaml)
+- [OAS 설명](https://github.com/starseat/SpringModernAPI_2025/OAS.md)
 
-### Swagger
+## Swagger
 
-#### Swagger Editor
+### Swagger Editor
 
 - [Swagger Editor](https://editor.swagger.io)
 - Reset API 설계와 설명을 위해 사용
 - 파일 작성시에는 OAS 3.0 버전이 설명되어 있는지 확인하고 사용
 - 베타 버전은 [https://editor-next.swagger.io](https://editor-next.swagger.io) 에서 사용할 수 있음.
 
-#### Swagger Codegen
+### Swagger Codegen
 
 - [Swagger Codegen](https://github.com/swagger-api/swaggercodegen)
 - 스프링 기반 API 인터페이스 생성
@@ -31,13 +32,10 @@
 - [OpenAPI 도구 Gradle Plugin - OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-gradle-plugin) 를 마우스로 선택해도 됨.
   - 다만 불안정하므로 **Swagger Codegen 선호**
 
-#### Swagger UI
+### Swagger UI
 
 - [Swagger UI](https://swagger.io/swagger-ui)
 - Rest API 문서 생성 용
-
-### 추가
-- [YAML 문법 참조](https://yaml.org/spec/)
 
 ## Service Design
 
@@ -67,3 +65,6 @@
 - 다른 모든 레이어의 대한 지원 담당
 - Database, Message Broker, File System 등과의 상호 작용을 위한 통신 담당 역할
 - Spring Boot 는 인프라 레이어로 작동하며 Database, Message Broker 등과 같은 외부 및 내부 시스템과의 통신 및 상호 작용 지원함.
+
+## 추가
+- [YAML 문법 참조](https://yaml.org/spec/)

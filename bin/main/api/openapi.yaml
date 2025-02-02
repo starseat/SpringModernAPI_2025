@@ -2,8 +2,8 @@ openapi: 3.0.3
 info:
   title: Sample Ecommerce App
   description: >
-    'This is a ***sample ecommerce app API***.  You can find out more about Swagger at [swagger.io](http://swagger.io).
-    Description supports markdown markup. For example, you can use the `inline code` using back ticks.'
+    '이것은 ***샘플 전자 상거래 앱 API*** 이다.  Swagger 에 대한 자세한 내용은 [swagger.io](http://swagger.io) 에서 확인할 수 있다.
+    설명은 markdown markup 을 지원한다. 예를 들어 백틱(back ticks, \`) 을 을 사용하여 `inline code` 를 사용할 수 있다.
   termsOfService: https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3/blob/main/LICENSE
   contact:
     name: Packt Support
@@ -14,13 +14,13 @@ info:
     url: https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3/blob/main/LICENSE
   version: 1.0.0
 externalDocs:
-  description: Any document link you want to generate along with API.
+  description: API 와 함께 생성하고자 하는 문서 링크.
   url: http://swagger.io
 servers:
   - url: https://ecommerce.swagger.io/v2
 tags:
   - name: cart
-    description: Everything about cart
+    description: cart 에 대한 모든 것
     externalDocs:
       description: Find out more (extra document link)
       url: http://swagger.io
@@ -813,14 +813,14 @@ paths:
 components:
   schemas:
     Cart:
-      description: Shopping Cart of the user
+      description: 사용자의 쇼핑 카트(장바구니)
       type: object
       properties:
         customerId:
-          description: Id of the customer who possesses the cart
+          description: 카트를 소유하고 있는 고객의 ID
           type: string
         items:
-          description: Collection of items in cart.
+          description: 카트 안에 있는 아이템의 컬렉션
           type: array
           items:
             $ref: '#/components/schemas/Item'
