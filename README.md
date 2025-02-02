@@ -13,7 +13,7 @@
 - OpenAPI 명세 (OpenAPI Specification, OAS)
   - [OAS v3.0.3 사용](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md)
 - [예제 소스 내의 OAS 명세](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/resources/api/openapi.yaml)
-- [OAS 설명](https://github.com/starseat/SpringModernAPI_2025/OAS.md)
+- [OAS 설명](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/OAS.md)
 
 ## Swagger
 
