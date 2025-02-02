@@ -135,3 +135,129 @@
   - [JSON 참조](https://datatracker.ietf.org/doc/html/draft-pbryan-zyp-json-ref-03) 기반. YAML 에서도 동일함.
   - `$ref`를 통해 동일 문서 또는 외부 문서의 객체 참조
   - 주로 API 정의가 여러 파일로 나누어져 있을때 사용
+
+---
+
+# OAS 를 스프링 코드로 변환
+
+- **참고로 예제에서는 모델과 API 생성기만 OpenAPI 생성기로 수행**
+- OpenAPI 생성기를 통해서는 클라이언트 또는 테스트 파일과 같은 다른 파일도 생성할 수 있음.
+- 생성된 API 인터페이스에는 ApiUtil.java 가 필요함. 이 내용을 `swaggerSources` 중 components 에 추가함.
+
+## 의존성 추가
+
+- build.gradle - dependencies
+
+~~~text
+dependencies {
+    // OpenAPI Starts
+    swaggerCodegen 'org.openapitools:openapi-generator-cli:6.2.1'
+    compileOnly 'io.swagger:swagger-annotations:1.6.4'
+    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    // required for schema in swagger generated code
+    implementation 'io.springfox:springfox-oas:3.0.0'
+    // OpenAPI Ends
+~~~
+
+## 플러그인 추가
+
+- build.gradle - dependencies
+
+~~~text
+plugins {
+    // ....
+    id 'org.hidetake.swagger.generator' version '2.19.2'
+}
+~~~
+
+## 코드 생성을 위한 OpenAPI config 정의
+
+- OpenAPI Generator 의 CLI 가 사용해야 하는 모델과 API 패키지 이름, REST 인터페이스, 날짜/시간 관련 객체 생성하는데 사용하는 라이브러리 등 여러 설정 필요
+- 이러한 모든 설정은 [config.json](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/resources/api/config.json) 에 정의
+<br>
+- config.json 의 설정은 spring-boot 라이브러리로 설정하며, Swagger Codegen 이 스프링 부트와 일치하는 클래스를 생성하도록 함.
+- `"useSpringBoot3": true` 은 생성된 클래스가 스프링 부트 3와 일치하도록 하기 위함임.
+- `importMappings` 를 제외한 나머지 프로퍼티는 전부 스스로의 속성이나 버전을 규정하고 있음.
+- 이 YAML 파일에는 java 또는 외부 라이브러리에 있는 타입에 대한 타입 매핑도 포함됨.
+- 따라서 `importMappings` 객체에 대한 코드가 생성되면 코드가 매핑한 클래스를 사용함.
+- 모델에서 Link 를 사용하는 경우 생성된 모델은 YAML 파일에 정의된 모델 대신 매핑된 'org.springframework.hateoas.Link' 클래스를 사용함.
+- 이 항목에 hateoas 를 사용하면 스프링 HATEOAS 라이브러리를 사용하고 HATEOAS 링크를 추가할 수 있음.
+- 설정에 대한 자세한 정보는 [Swagger customizing-the-generator](https://github.com/swagger-api/swagger-codegen#customizing-the-generator) 참조
+
+## OpenAPI 생성기 ignore 파일 정의
+
+- 제외할 코드를 특정할 수 있음.
+- [.openapi-generator-ignore](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/resources/api/.openapi-generator-ignore)
+
+~~~text
+**/*Controller.java
+~~~
+
+- 컨트롤러를 별도로 생성할 예정이므로 위 설정을 추가함.
+
+## swaggerSources 태스크 정의
+
+- build.gradle 에 swaggerSources 정의
+
+~~~text
+swaggerSources {
+    def typeMappings = 'URI=URI'
+    def importMappings = 'URI=java.net.URI'
+    eStore {
+        def apiYaml = "${rootDir}/src/main/resources/api/openapi.yaml"
+        def configJson = "${rootDir}/src/main/resources/api/config.json"
+        inputFile = file(apiYaml)
+        def ignoreFile = file("${rootDir}/src/main/resources/api/.openapi-generator-ignore")
+        code {
+            language = 'spring'
+            configFile = file(configJson)
+            rawOptions = ['--ignore-file-override', ignoreFile, '--type-mappings',
+                          typeMappings, '--import-mappings', importMappings] as List<String>
+            components = [models: true, apis: true, supportingFiles: 'ApiUtil.java']
+            dependsOn validation
+        }
+    }
+}
+~~~
+
+- openapi.yaml 파일의 위치를 가리키는 inputFile 을 포함하는 eStore(사용자 정의 이름)을 정의함.
+  - 개발자가 입력을 정의하면 생성되는 code 에서 설정된 출력 생성
+
+- code 블록에 language (필수 입력 사항) 및 config.json 을 가리키는 configFile, rawOption(타입 및 가져오기 매핑 포함), components 정의
+
+## compileJava 작업 의존성에 swaggerSources 추가
+
+- build.gradle - compileJava
+- swaggerSources 를 compileJava 작업에 의존하는 태스크로 추가해야함.
+- eStore 에 정의된 코드 블록을 가리킴
+
+~~~text
+compileJava.dependsOn swaggerSources.eStore.code
+~~~
+
+- 또한, processResources 태스크에 generateSwaggerCode 태스크를 의존성으로 추가해야함.
+
+~~~text
+processResources {
+  dependsOn(generateSwaggerCode)
+}
+~~~
+
+## 생성된 소스 코드를 Gradle sourceSets 에 추가
+
+- 생성된 소스 코드와 리소스를 sourceSet 에 추가하는 작업 필요
+- 이 과정을 거치면 생성된 소스 코드와 리소스를 개발 및 빌드에 사용할 수 있음.
+- 이 내용은 프로젝트 /build 디렉토리에 생성됨.
+- 
+
+~~~text
+sourceSets.main.java.srcDir "${swaggerSources.eStore.code.outputDir}/src/main/java"
+sourceSets.main.resources.srcDir "${swaggerSources.eStore.code.outputDir}/src/main/resources"
+~~~
+
+## 코드 생성, 컴파잉ㄹ 및 빌드를 위한 빌드 실행
+
+- gradle clean, build 를 하여 빌드 경로에 실행 가능한 자바 코드가 있는지 확인
