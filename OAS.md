@@ -69,6 +69,7 @@
 - tags
   - API 를 그룹화 할때 사용
   - Swagger Codegen 은 tags 를 사용하여 코드를 생성할 수도 있음.
+  - *이 예제 에서는 CartApi, OrderApi 등 tag 로 지정된 api interface 가 생성됨.*
 
 - summary, description
   - OAS 의 메타데이터와 동일한 기능
@@ -261,3 +262,29 @@ sourceSets.main.resources.srcDir "${swaggerSources.eStore.code.outputDir}/src/ma
 ## 코드 생성, 컴파잉ㄹ 및 빌드를 위한 빌드 실행
 
 - gradle clean, build 를 하여 빌드 경로에 실행 가능한 자바 코드가 있는지 확인
+
+---
+
+# 추가 참고 사항
+
+## OAS 코드 interface 구현
+
+- 빌드 후 openapi.yaml 로 작성한 내용을 기반으로 코드가 생성됨.
+- 개발자는 Swagger Codegen 으로 스프링 코드를 작성해 인터페이스를 구현하고 그 안에 비즈니스 로직을 작성하기만 하면 됨.
+- Swagger Codegen 은 제공된 각 태그에 대한 API 인터페이스를 생성하는 기능이다.
+  - cart 및 payment 태그에 대해 각각 CartApi, PaymentApi 자바 인터페이스를 생성함.
+- 모든 경로는 태그 기반으로 단일 자바 인터페이스로 함께 묶임.
+  - cart 태그가 있는 모든 API 의 경우 단일 자바 인터페이스인 CartApi.java 로 묶임.
+- 빌드 후에 각 인터페이스에 대한 클래스를 만들고 구현하면 됨.
+  - controllers 패키지에 [CartController.java](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/java/com/packt/modern/api/controllers/CartsController.java) 를 만들고 CartApi 구현 필요
+
+## 전역 예외 처리기 추가
+
+- 애플리케이션에서 발생하는 모든 에러를 처리할 중심 역할 필요 (Global Exception Handler)
+- 스프링 AOP 기능으로 @ControllerAdvice 라는 애노테이션이 달린 단일 클래스 작성 후 각 예외에 @ExceptionHandler 추가
+- ExceptionHandler 생성 전 에러 정보를 공통화 하는 Error 관련 클래스 작성 필요
+  - [Error.java](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/java/com/packt/modern/api/exceptions/Error.java)
+  - [ErrorCode.java](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/java/com/packt/modern/api/exceptions/ErrorCode.java)
+  - [ErrorUtils.java](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/java/com/packt/modern/api/exceptions/ErrorUtils.java)
+  - [ExceptionHandler - RestApiErrorHandler.java](https://github.com/starseat/SpringModernAPI_2025/blob/03_oas/src/main/java/com/packt/modern/api/exceptions/RestApiErrorHandler.java)
+
