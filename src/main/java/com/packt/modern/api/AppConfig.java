@@ -1,20 +1,18 @@
 package com.packt.modern.api;
 
-import org.springframework.http.MediaType;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.ShallowEtagHeaderFilter;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter03 - Modern API Development with Spring and Spring Boot Ed 2
- * @created : 31/10/2022, Monday
+ * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-public class AppConfig implements WebMvcConfigurer {
-
-/*  @Override
-  public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-    configurer.defaultContentType(MediaType.APPLICATION_JSON).
-        mediaType("xml", MediaType.APPLICATION_XML).
-        mediaType("json", MediaType.APPLICATION_JSON)
-  }*/
+@Configuration
+public class AppConfig {
+  @Bean
+  public ShallowEtagHeaderFilter shallowEtagHeaderFilter() {
+    // append ETag
+    return new ShallowEtagHeaderFilter();
+  }
 }

@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.0.1'
+    id 'org.springframework.boot' version '3.0.8'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'java'
     id 'org.hidetake.swagger.generator' version '2.19.2'
@@ -7,15 +7,13 @@ plugins {
 
 group = 'com.packt.modern.api'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = JavaVersion.VERSION_17
 
 processResources {
-  dependsOn(generateSwaggerCode)
+    dependsOn(generateSwaggerCode)
 }
 
 swaggerSources {
-    def typeMappings = 'URI=URI'
-    def importMappings = 'URI=java.net.URI'
     eStore {
         def apiYaml = "${rootDir}/src/main/resources/api/openapi.yaml"
         def configJson = "${rootDir}/src/main/resources/api/config.json"
@@ -24,10 +22,8 @@ swaggerSources {
         code {
             language = 'spring'
             configFile = file(configJson)
-            rawOptions = ['--ignore-file-override', ignoreFile, '--type-mappings',
-                          typeMappings, '--import-mappings', importMappings] as List<String>
+            rawOptions = ['--ignore-file-override', ignoreFile] as List<String>
             components = [models: true, apis: true, supportingFiles: 'ApiUtil.java']
-            dependsOn validation
         }
     }
 }
@@ -53,11 +49,26 @@ dependencies {
     implementation 'io.springfox:springfox-oas:3.0.0'
     // OpenAPI Ends
 
+    // DB Starts
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'com.h2database:h2'
+    // DB Ends
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
-tasks.named('test') {
+test {
+    jvmArgs '--enable-preview'
     useJUnitPlatform()
+}
+
+bootJar {
+    manifest {
+        attributes 'Implementation-Version': "${version}"
+        attributes 'Implementation-Title': "${project.name}"
+        attributes 'Manifest-Version': "1.0"
+    }
 }
