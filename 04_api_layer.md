@@ -76,7 +76,30 @@ public class Cart extends RepresentationModel<Cart>  implements Serializable {
     - toMapper() 메소드를 재정의(overriding) 하는 부분 확인
     - 생성자에서 super() 호출하여 Cart 모들과 함께 CartController 를 Rep 에 전달
     - 어블러는 이를 통해 앞에서 공유한 methodOn 메소드에 필요한 적절한 링크를 생성함. (이런 방법으로 링크 자동 생성)
+<br>
+- 이후 Controller 에 RepresentationModelAssembler 를 추가하여 하이퍼미디어 링크를 포함하도록 확장
+- 예: [CartController.java](https://github.com/starseat/SpringModernAPI_2025/blob/main/src/main/java/com/packt/modern/api/controllers/CartsController.java)
 
+```java
+@RestController
+public class CartsController implements CartApi {
+
+  private static final Logger log = LoggerFactory.getLogger(CartsController.class);
+  private final CartService service;
+  private final CartRepresentationModelAssembler assembler;
+
+  public CartsController(CartService service, CartRepresentationModelAssembler assembler) {
+    this.service = service;
+    this.assembler = assembler;
+  }
+  
+  // ...
+
+  @Override
+  public ResponseEntity<Cart> getCartByCustomerId(String customerId) {
+    return ok(assembler.toModel(service.getCartByCustomerId(customerId)));
+  }
+```
 
 ## HATEOAS 수동 링크 생성
 
