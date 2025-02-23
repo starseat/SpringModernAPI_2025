@@ -186,6 +186,7 @@ plugins {
 - 따라서 `importMappings` 객체에 대한 코드가 생성되면 코드가 매핑한 클래스를 사용함.
 - 모델에서 Link 를 사용하는 경우 생성된 모델은 YAML 파일에 정의된 모델 대신 매핑된 'org.springframework.hateoas.Link' 클래스를 사용함.
 - 이 항목에 hateoas 를 사용하면 스프링 HATEOAS 라이브러리를 사용하고 HATEOAS 링크를 추가할 수 있음.
+  - 스프링 HATEOAS 의 링크와 속성은 `RFC 8288`에 따라 구현됨. 
 - 설정에 대한 자세한 정보는 [Swagger customizing-the-generator](https://github.com/swagger-api/swagger-codegen#customizing-the-generator) 참조
 
 ## OpenAPI 생성기 ignore 파일 정의
