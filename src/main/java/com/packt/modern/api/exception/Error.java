@@ -1,5 +1,6 @@
-package com.packt.modern.api.exceptions;
+package com.packt.modern.api.exception;
 
+import java.time.Instant;
 import org.apache.logging.log4j.util.Strings;
 
 /**
@@ -8,8 +9,7 @@ import org.apache.logging.log4j.util.Strings;
  * Complex type that contains error details for a REST API calls.
  *
  * @author : github.com/sharmasourabh
- * @project : Chapter03 - Modern API Development with Spring and Spring Boot Ed 2
- * @created : 31/10/2022, Monday
+ * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 public class Error {
 
@@ -38,6 +38,11 @@ public class Error {
    * Method of request that produced the error.
    */
   private String reqMethod = "Not available";
+
+  /**
+   * Timestamp
+   */
+  private Instant timestamp;
 
   public String getErrorCode() {
     return errorCode;
@@ -82,6 +87,15 @@ public class Error {
     if (Strings.isNotBlank(method)) {
       this.reqMethod = method;
     }
+    return this;
+  }
+
+  public Instant getTimestamp() {
+    return timestamp;
+  }
+
+  public Error setTimestamp(Instant timestamp) {
+    this.timestamp = timestamp;
     return this;
   }
 }
