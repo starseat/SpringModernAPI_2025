@@ -121,6 +121,40 @@ responseModel.setSelf(linkTo(methodOn(CartController.class)
 - 모델에 링크를 추가하는 작업은 스프링 HATEOAS 의 RepresentationModelAssembler 인터페이스를 사용하여 자동으로 수행될 수도 있음.
 - 이 인터페이스는 주로 주어진 Entity 를 Model 과 CollectionModel 로 변환하는 toModel(T model) 와 toCollectionModel(Iterable<? extents T> entities) 의 두가지 메소드가 있음.
 
+# API 응답에 ETag 추가
+
+- ETag 는 응답 엔터티의 계산된 해시 또는 이에 상응하는 값을 포함하는 HTTP 응답 헤더이며 엔터티의 작은 변경에도 반드시 해당 값을 변경해야 함.
+- HTTP 요청 객체는 조건부 응답을 수신하기 위한 If-Match 와 If-None-Match 헤더를 포함할 수 있음.
+- ETag 를 구현하는 가장 쉽고 간단한 방법은 `ShallowEtagHeaderFilter` 사용하는 방법임.
+
+```java
+@Configuration
+public class AppConfig {
+  @Bean
+  public ShallowEtagHeaderFilter shallowEtagHeaderFilter() {
+    // append ETag
+    return new ShallowEtagHeaderFilter();
+  }
+}
+```
+
+- 이 구현을 위해 스프링은 응답에 기록된 캐시 콘텐츠에서 MD5 해시를 계산함.
+- 그 이후 If-None-Match 헤더가 있는 요청을 수신하면 응답에 기록된 캐시 콘텐츠에서 MD5 해시를 다시 생성한 다음 이 두 해시를 비교함.
+- 둘 다 같으면 `304 NOT MODIFIED` 응답을 보냄.
+- 이렇게 하면 대역폭은 절약되지만 CPU 계산을 사용한 작업이 수용됨.
+- 이러한 불필요한 CPU 계산을 피하고 더 나은 ETag 처리를 위해 HTTP 캐시 제어(org.springframework.http.CacheControl) 클래스를 사용하거나 각 변경에 대해 업데이트 되는 버전 또는 유사한 애트리뷰트를 사용할 수 있음.
+
+```java
+// 응답에 etag 추가
+return ResponseEntity.ok()
+        .cacheControl(CacheControl.maxAge(5, TimeUnit.DAYS))
+        .eTag(product.getModifiedDateInEpoch())
+        .body(product);
+```
+
+- 위 예제 소스처럼 응답에 ETag 를 추가하면 UI 앱이 페이지/객체를 새로고침할 지 또는 이벤트를 트리거할 지 여부를 결정할 수 있음.
+- 특히 라이브 점수 또는 주식 시세 제공과 같이 애플리케이션에서 데이터가 자주 변경되는 경우 유용함.
+
 
 # 추가 및 참조
 

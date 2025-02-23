@@ -12,6 +12,7 @@ import org.springframework.web.filter.ShallowEtagHeaderFilter;
 public class AppConfig {
   @Bean
   public ShallowEtagHeaderFilter shallowEtagHeaderFilter() {
+    // append ETag
     return new ShallowEtagHeaderFilter();
   }
 }
