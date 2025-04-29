@@ -3,17 +3,18 @@ package com.packt.modern.api.service;
 import com.packt.modern.api.entity.AddressEntity;
 import com.packt.modern.api.model.AddAddressReq;
 import java.util.Optional;
+import java.util.UUID;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
- */
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
+ **/
 public interface AddressService {
-  Optional<AddressEntity> createAddress(AddAddressReq addAddressReq);
-
-  void deleteAddressesById(String id);
-
-  Optional<AddressEntity> getAddressesById(String id);
-
-  Iterable<AddressEntity> getAllAddresses();
+  Mono<AddressEntity> createAddress(Mono<AddAddressReq> addAddressReq);
+  Mono<Void> deleteAddressesById(String id);
+  Mono<Void> deleteAddressesById(UUID id);
+  Mono<AddressEntity> getAddressesById(String id);
+  Flux<AddressEntity> getAllAddresses();
 }

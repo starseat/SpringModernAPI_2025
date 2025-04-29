@@ -1,30 +1,26 @@
 package com.packt.modern.api.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-@Entity
-@Table(name = "tag")
+
+@Table("ecomm.tag")
 public class TagEntity {
 
   @Id
-  @GeneratedValue
-  @Column(name = "ID", updatable = false, nullable = false)
+  @Column("id")
   private UUID id;
 
   @NotNull(message = "Product name is required.")
-  @Basic(optional = false)
-  @Column(name = "NAME")
+//  @Basic(optional = false)
+  @Column("name")
   private String name;
 
   public UUID getId() {

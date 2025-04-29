@@ -1,119 +1,140 @@
 package com.packt.modern.api.service;
 
 import static java.util.stream.Collectors.toList;
-import static org.springframework.objenesis.instantiator.util.UnsafeUtils.getUnsafe;
 
 import com.packt.modern.api.entity.CartEntity;
 import com.packt.modern.api.entity.ItemEntity;
-import com.packt.modern.api.exception.CustomerNotFoundException;
+import com.packt.modern.api.entity.UserEntity;
 import com.packt.modern.api.exception.GenericAlreadyExistsException;
-import com.packt.modern.api.exception.ItemNotFoundException;
+import com.packt.modern.api.exception.ResourceNotFoundException;
 import com.packt.modern.api.model.Item;
 import com.packt.modern.api.repository.CartRepository;
+import com.packt.modern.api.repository.ItemRepository;
 import com.packt.modern.api.repository.UserRepository;
-import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 @Service
 public class CartServiceImpl implements CartService {
 
-  private final CartRepository repository;
-  private final UserRepository userRepo;
-  private final ItemService itemService;
+  private CartRepository repository;
+  private UserRepository userRepo;
+  private ItemRepository itemRepo;
+  private ItemService itemService;
+  private BiFunction<CartEntity, ItemEntity, CartEntity> cartEntityBiFun = (c, i) -> {
+    c.getItems().add(i);
+    return c;
+  };
+  private BiFunction<CartEntity, List<ItemEntity>, CartEntity> cartItemBiFun = (c, i) -> c
+      .setItems(i);
+
+  private BiFunction<CartEntity, UserEntity, CartEntity> cartUserBiFun = (c, u) -> c
+      .setUser(u);
 
   public CartServiceImpl(CartRepository repository, UserRepository userRepo,
-      ItemService itemService) {
+      ItemService itemService, ItemRepository itemRepo) {
     this.repository = repository;
     this.userRepo = userRepo;
     this.itemService = itemService;
+    this.itemRepo = itemRepo;
   }
 
   @Override
-  public List<Item> addCartItemsByCustomerId(String customerId, @Valid Item item) {
-    CartEntity entity = getCartByCustomerId(customerId);
-    long count = entity.getItems().stream()
-        .filter(i -> i.getProduct().getId().equals(UUID.fromString(item.getId()))).count();
-    if (count > 0) {
-      throw new GenericAlreadyExistsException(
-          String.format("Item with Id (%s) already exists. You can update it.", item.getId()));
-    }
-    entity.getItems().add(itemService.toEntity(item));
-    return itemService.toModelList(repository.save(entity).getItems());
-  }
-
-  @Override
-  public List<Item> addOrReplaceItemsByCustomerId(String customerId, @Valid Item item) {
-    CartEntity entity = getCartByCustomerId(customerId);
-    List<ItemEntity> items =
-        Objects.nonNull(entity.getItems()) ? entity.getItems() : List.of();
-    AtomicBoolean itemExists = new AtomicBoolean(false);
-    items.forEach(i -> {
-      if (i.getProduct().getId().equals(UUID.fromString(item.getId()))) {
-        i.setQuantity(item.getQuantity()).setPrice(i.getPrice());
-        itemExists.set(true);
+  @Transactional
+  public Flux<Item> addCartItemsByCustomerId(CartEntity cartEntity, @Valid Mono<Item> newItem) {
+    final List<ItemEntity> cartItems = cartEntity.getItems();
+    return newItem.flatMap(ni -> {
+      long countExisting = cartItems.stream()
+          .filter(i -> i.getProductId().equals(UUID.fromString(ni.getId()))).count();
+      if (countExisting == 1) {
+        return Mono
+            .error(new GenericAlreadyExistsException(String.format(
+                "Requested Item (%s) is already there in cart. Please make a PUT call for update.",
+                ni.getId())));
       }
-    });
-    if (!itemExists.get()) {
-      items.add(itemService.toEntity(item));
-    }
-    return itemService.toModelList(repository.save(entity).getItems());
+      return itemRepo.save(itemService.toEntity(ni)).flatMap(i ->
+          itemRepo.saveMapping(cartEntity.getId(), i.getId()).then(
+              getUpdatedList(cartItems, i)
+          )
+      );
+    }).flatMapMany(Flux::fromIterable);
+  }
+
+  private Mono<List<Item>> getUpdatedList(List<ItemEntity> cartItems, ItemEntity savedItem) {
+    cartItems.add(savedItem);
+    return Mono.just(itemService.toModelList(cartItems));
   }
 
   @Override
-  public void deleteCart(String customerId) {
-    // will throw the error if it doesn't exist
-    CartEntity entity = getCartByCustomerId(customerId);
-    repository.deleteById(entity.getId());
-  }
-
-  @Override
-  public void deleteItemFromCart(String customerId, String itemId) {
-    CartEntity entity = getCartByCustomerId(customerId);
-    List<ItemEntity> updatedItems = entity.getItems().stream()
-        .filter(i -> !i.getProduct().getId().equals(UUID.fromString(itemId))).collect(toList());
-    entity.setItems(updatedItems);
-    repository.save(entity);
-  }
-
-  @Override
-  public CartEntity getCartByCustomerId(String customerId) {
-    CartEntity entity = repository.findByCustomerId(UUID.fromString(customerId))
-        .orElse(new CartEntity());
-    if (Objects.isNull(entity.getUser())) {
-      entity.setUser(userRepo.findById(UUID.fromString(customerId))
-          .orElseThrow(() -> new CustomerNotFoundException(
-              String.format(" - %s", customerId))));
-    }
-    return entity;
-  }
-
-  @Override
-  public List<Item> getCartItemsByCustomerId(String customerId) {
-    CartEntity entity = getCartByCustomerId(customerId);
-    return itemService.toModelList(entity.getItems());
-  }
-
-  @Override
-  public Item getCartItemsByItemId(String customerId, String itemId) {
-    CartEntity entity = getCartByCustomerId(customerId);
-    AtomicReference<ItemEntity> itemEntity = new AtomicReference<>();
-    entity.getItems().forEach(i -> {
-      if (i.getProduct().getId().equals(UUID.fromString(itemId))) {
-        itemEntity.set(i);
+  public Flux<Item> addOrReplaceItemsByCustomerId(CartEntity cartEntity,
+      @Valid Mono<Item> newItem) {
+    final List<ItemEntity> cartItems = cartEntity.getItems();
+    return newItem.flatMap(ni -> {
+      List<ItemEntity> existing = cartItems.stream()
+          .filter(i -> i.getProductId().equals(UUID.fromString(ni.getId()))).collect(toList());
+      if (existing.size() == 1) {
+        existing.get(0).setPrice(ni.getUnitPrice()).setQuantity(ni.getQuantity());
+        return itemRepo.save(existing.get(0)).flatMap(i -> getUpdatedList(
+            cartItems.stream().filter(j -> !j.getProductId().equals(UUID.fromString(ni.getId())))
+                .collect(toList()), i));
       }
-    });
-    if (Objects.isNull(itemEntity.get())) {
-      getUnsafe().throwException(new ItemNotFoundException(String.format(" - %s", itemId)));
+      return itemRepo.save(itemService.toEntity(ni)).flatMap(i ->
+          itemRepo.saveMapping(cartEntity.getId(), i.getId()).then(
+              getUpdatedList(cartItems, i)
+          )
+      );
+    }).flatMapMany(Flux::fromIterable);
+  }
+
+  @Override
+  @Transactional
+  public Mono<Void> deleteCart(String customerId, String cartId) {
+    Mono<List<UUID>> monoIds = itemRepo.findByCustomerId(UUID.fromString(customerId))
+        .switchIfEmpty(Mono.error(new ResourceNotFoundException(
+            ". No items found in Cart of customer with Id - " + customerId)))
+        .map(i -> i.getId())
+        .collectList().cache();
+    return monoIds.zipWhen(l -> {
+      List<UUID> ids = l.subList(0, l.size());
+      return itemRepo.deleteCartItemJoinById(ids, UUID.fromString(cartId))
+          .then(itemRepo.deleteByIds(ids).subscribeOn(Schedulers.boundedElastic()));
+    }).then();
+  }
+
+  @Override
+  public Mono<Void> deleteItemFromCart(CartEntity cartEntity, String itemId) {
+    List<ItemEntity> items = cartEntity.getItems();
+    items = items.stream()
+        .filter(i -> i.getProductId().equals(UUID.fromString(itemId))).collect(toList());
+    if (items.size() != 1) {
+      return Mono
+          .error(new ResourceNotFoundException(". No items found in Cart with Id - " + itemId));
     }
-    return itemService.toModel(itemEntity.get());
+    List<UUID> ids = items.stream().map(i -> i.getId()).collect(toList());
+    return itemRepo.deleteCartItemJoinById(ids, cartEntity.getId())
+        .then(itemRepo.deleteByIds(ids).subscribeOn(Schedulers.boundedElastic()));
+  }
+
+  @Override
+  public Mono<CartEntity> getCartByCustomerId(String customerId) {
+    Mono<CartEntity> cart = repository.findByCustomerId(UUID.fromString(customerId))
+        .subscribeOn(Schedulers.boundedElastic());
+    Mono<UserEntity> user = userRepo.findById(UUID.fromString(customerId))
+        .subscribeOn(Schedulers.boundedElastic());
+    cart = Mono.zip(cart, user, cartUserBiFun);
+    Flux<ItemEntity> items = itemRepo.findByCustomerId(UUID.fromString(customerId))
+        .subscribeOn(Schedulers.boundedElastic());
+    return Mono.zip(cart, items.collectList(), cartItemBiFun);
   }
 }

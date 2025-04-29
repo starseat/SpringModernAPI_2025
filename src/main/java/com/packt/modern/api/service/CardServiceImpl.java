@@ -5,19 +5,22 @@ import com.packt.modern.api.entity.UserEntity;
 import com.packt.modern.api.model.AddCardReq;
 import com.packt.modern.api.repository.CardRepository;
 import com.packt.modern.api.repository.UserRepository;
-import jakarta.validation.Valid;
-import java.util.Optional;
 import java.util.UUID;
+import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 @Service
 public class CardServiceImpl implements CardService {
-  private final CardRepository repository;
-  private final UserRepository userRepo;
+
+  private CardRepository repository;
+  private UserRepository userRepo;
 
   public CardServiceImpl(CardRepository repository, UserRepository userRepo) {
     this.repository = repository;
@@ -25,32 +28,38 @@ public class CardServiceImpl implements CardService {
   }
 
   @Override
-  public void deleteCardById(String id) {
-    repository.deleteById(UUID.fromString(id));
+  public Mono<Void> deleteCardById(String id) {
+    return deleteCardById(UUID.fromString(id));
   }
 
   @Override
-  public Iterable<CardEntity> getAllCards() {
+  public Mono<Void> deleteCardById(UUID id) {
+    return repository.deleteById(id);
+  }
+
+  @Override
+  public Flux<CardEntity> getAllCards() {
     return repository.findAll();
   }
 
   @Override
-  public Optional<CardEntity> getCardById(String id) {
+  public Mono<CardEntity> getCardById(String id) {
     return repository.findById(UUID.fromString(id));
   }
 
   @Override
-  public Optional<CardEntity> registerCard(@Valid AddCardReq addCardReq) {
-    // add validation to make sure that only single card exists from one user
-    // else it throws DataIntegrityViolationException for user_id (unique)
-    return Optional.of(repository.save(toEntity(addCardReq)));
+  public Mono<CardEntity> registerCard(@Valid Mono<AddCardReq> addCardReq) {
+    return addCardReq.map(this::toEntity).flatMap(repository::save);
   }
 
-  private CardEntity toEntity(AddCardReq m) {
+  @Override
+  public CardEntity toEntity(AddCardReq model) {
     CardEntity e = new CardEntity();
-    Optional<UserEntity> user = userRepo.findById(UUID.fromString(m.getUserId()));
-    user.ifPresent(e::setUser);
-    return e.setNumber(m.getCardNumber()).setCvv(m.getCvv())
-        .setExpires(m.getExpires());
+    BeanUtils.copyProperties(model, e);
+    e.setNumber(model.getCardNumber());
+    e.setUserId(UUID.fromString(model.getUserId()));
+    //Mono<UserEntity> user = userRepo.findById(UUID.fromString(model.getUserId()));
+    //user.map(u -> e.setUser(u));
+    return e;
   }
 }

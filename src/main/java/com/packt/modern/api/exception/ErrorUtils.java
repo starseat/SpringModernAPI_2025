@@ -2,7 +2,7 @@ package com.packt.modern.api.exception;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 public class ErrorUtils {
 
@@ -15,6 +15,7 @@ public class ErrorUtils {
    * @param errMsgKey
    * @param errorCode
    * @param httpStatusCode
+   * @param url
    * @return error
    */
   public static Error createError(final String errMsgKey, final String errorCode,

@@ -1,48 +1,51 @@
 package com.packt.modern.api.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
-@Table(name = "product")
+@Table("ecomm.product")
 public class ProductEntity {
 
   @Id
-  @GeneratedValue
-  @Column(name = "ID", updatable = false, nullable = false)
+  @Column("id")
   private UUID id;
 
   @NotNull(message = "Product name is required.")
-  @Basic(optional = false)
-  @Column(name = "NAME")
+  //@Basic(optional = false)
+  @Column("name")
   private String name;
 
-  @Column(name = "DESCRIPTION")
+  @Column("description")
   private String description;
 
-  @Column(name = "PRICE")
+  @Column("price")
   private BigDecimal price;
 
-  @Column(name = "COUNT")
+  @Column("count")
   private int count;
 
-  @Column(name = "IMAGE_URL")
+  @Column("image_url")
   private String imageUrl;
 
-  @OneToMany(cascade = CascadeType.ALL)
+  /*@OneToMany(cascade = CascadeType.ALL)
   @JoinTable(
       name = "PRODUCT_TAG",
       joinColumns = @JoinColumn(name = "PRODUCT_ID"),
       inverseJoinColumns = @JoinColumn(name = "TAG_ID")
-  )
+  )*/
+  @Transient
   private List<TagEntity> tags = new ArrayList<>();
 
-  @OneToMany(mappedBy = "product")
-  private List<ItemEntity> items;
+  //  @OneToOne(mappedBy = "product")
+  private ItemEntity item;
 
   public ProductEntity(UUID id, @NotNull(message = "Product name is required.") String name,
       String description, BigDecimal price, int count, String imageUrl) {
@@ -120,12 +123,12 @@ public class ProductEntity {
     return this;
   }
 
-  public List<ItemEntity> getItem() {
-    return items;
+  public ItemEntity getItem() {
+    return item;
   }
 
-  public ProductEntity setItem(List<ItemEntity> item) {
-    this.items = item;
+  public ProductEntity setItem(ItemEntity item) {
+    this.item = item;
     return this;
   }
 }

@@ -2,12 +2,17 @@ package com.packt.modern.api.repository;
 
 import com.packt.modern.api.entity.ShipmentEntity;
 import java.util.UUID;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-public interface ShipmentRepository extends CrudRepository<ShipmentEntity, UUID> {
+public interface ShipmentRepository extends ReactiveCrudRepository<ShipmentEntity, UUID> {
+
+  @Query("SELECT s.* FROM ecomm.order o, ecomm.shipment s where o.shipment_id=s.id and o.id = :id")
+  Flux<ShipmentEntity> getShipmentByOrderId(UUID id);
 }
 

@@ -1,62 +1,58 @@
 package com.packt.modern.api.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
+import reactor.core.publisher.Flux;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-@Entity
-@Table(name = "\"user\"")
+@Table("ecomm.\"user\"")
 public class UserEntity {
+
   @Id
-  @GeneratedValue
-  @Column(name = "ID", updatable = false, nullable = false)
+  @Column("id")
   private UUID id;
 
   @NotNull(message = "User name is required.")
-  @Basic(optional = false)
-  @Column(name = "USERNAME")
+  @Column("username")
   private String username;
 
-  @Column(name = "PASSWORD")
+  @Column("password")
   private String password;
 
-  @Column(name = "FIRST_NAME")
+  @Column("first_name")
   private String firstName;
 
-  @Column(name = "LAST_NAME")
+  @Column("last_name")
   private String lastName;
 
-  @Column(name = "EMAIL")
+  @Column("email")
   private String email;
 
-  @Column(name = "PHONE")
+  @Column("phone")
   private String phone;
 
-  @Column(name = "USER_STATUS")
+  @Column("user_status")
   private String userStatus;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  /*@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinTable(
       name = "USER_ADDRESS",
       joinColumns = @JoinColumn(name = "USER_ID"),
       inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID")
-  )
-  private List<AddressEntity> addresses = new ArrayList<>();
+  )*/
+  //private Flux<AddressEntity> addresses = Flux.empty();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
-  private List<CardEntity> cards;
+  //  @OneToOne(mappedBy = "user")
+  private CardEntity card;
 
-  @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  //  @OneToOne(mappedBy = "user")
   private CartEntity cart;
-
-  @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, orphanRemoval = true)
-  private List<OrderEntity> orders;
 
   public UUID getId() {
     return id;
@@ -130,22 +126,22 @@ public class UserEntity {
     return this;
   }
 
-  public List<AddressEntity> getAddresses() {
+  /*public Flux<AddressEntity> getAddresses() {
     return addresses;
   }
 
   public UserEntity setAddresses(
-      List<AddressEntity> addresses) {
+      Flux<AddressEntity> addresses) {
     this.addresses = addresses;
     return this;
+  }*/
+
+  public CardEntity getCard() {
+    return card;
   }
 
-  public List<CardEntity> getCard() {
-    return cards;
-  }
-
-  public UserEntity setCard(List<CardEntity> card) {
-    this.cards = card;
+  public UserEntity setCard(CardEntity card) {
+    this.card = card;
     return this;
   }
 
@@ -155,15 +151,6 @@ public class UserEntity {
 
   public UserEntity setCart(CartEntity cart) {
     this.cart = cart;
-    return this;
-  }
-
-  public List<OrderEntity> getOrder() {
-    return orders;
-  }
-
-  public UserEntity setOrder(List<OrderEntity> order) {
-    this.orders = order;
     return this;
   }
 }

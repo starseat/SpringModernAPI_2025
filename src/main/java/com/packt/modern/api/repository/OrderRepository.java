@@ -2,19 +2,19 @@ package com.packt.modern.api.repository;
 
 import com.packt.modern.api.entity.OrderEntity;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.r2dbc.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 @Repository
-public interface OrderRepository extends CrudRepository<OrderEntity, UUID>, OrderRepositoryExt {
+public interface OrderRepository extends ReactiveCrudRepository<OrderEntity, UUID>,
+    OrderRepositoryExt {
 
-  @Query("select o from OrderEntity o join o.userEntity u where u.id = :customerId")
-  Iterable<OrderEntity> findByCustomerId(@Param("customerId") UUID customerId);
+  @Query("select o.* from ecomm.orders o join ecomm.\"user\" u on o.customer_id = u.id where u.id = :custId")
+  Flux<OrderEntity> findByCustomerId(UUID custId);
 }
-

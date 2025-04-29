@@ -4,15 +4,19 @@ import com.packt.modern.api.entity.AddressEntity;
 import com.packt.modern.api.entity.CardEntity;
 import com.packt.modern.api.entity.UserEntity;
 import java.util.Optional;
+import java.util.UUID;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 public interface UserService {
-  void deleteCustomerById(String id);
-  Optional<Iterable<AddressEntity>> getAddressesByCustomerId(String id);
-  Iterable<UserEntity> getAllCustomers();
-  Optional<CardEntity> getCardByCustomerId(String id);
-  Optional<UserEntity> getCustomerById(String id);
+  Mono<Void> deleteCustomerById(String id);
+  Mono<Void> deleteCustomerById(UUID id);
+  Flux<AddressEntity> getAddressesByCustomerId(String id);
+  Flux<UserEntity> getAllCustomers();
+  Mono<CardEntity> getCardByCustomerId(String id);
+  Mono<UserEntity> getCustomerById(String id);
 }

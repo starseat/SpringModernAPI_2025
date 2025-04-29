@@ -1,44 +1,41 @@
 package com.packt.modern.api.entity;
 
-import jakarta.persistence.*;
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-@Entity
-@Table(name = "address")
+
+@Table("ecomm.address")
 public class AddressEntity {
   @Id
-  @GeneratedValue
-  @Column(name = "ID", updatable = false, nullable = false)
+  @Column("id")
   private UUID id;
 
-  @Column(name = "NUMBER")
+  @Column("number")
   private String number;
 
-  @Column(name = "RESIDENCY")
+  @Column("residency")
   private String residency;
 
-  @Column(name = "STREET")
+  @Column("street")
   private String street;
 
-  @Column(name = "CITY")
+  @Column("city")
   private String city;
 
-  @Column(name = "STATE")
+  @Column("state")
   private String state;
 
-  @Column(name = "COUNTRY")
+  @Column("country")
   private String country;
 
-  @Column(name = "PINCODE")
+  @Column("pincode")
   private String pincode;
-
-  @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY, orphanRemoval = true)
-  private List<OrderEntity> orders;
 
   public UUID getId() {
     return id;
@@ -112,12 +109,17 @@ public class AddressEntity {
     return this;
   }
 
-  public List<OrderEntity> getOrders() {
-    return orders;
-  }
-
-  public AddressEntity setOrders(List<OrderEntity> orders) {
-    this.orders = orders;
-    return this;
+  @Override
+  public String toString() {
+    return "AddressEntity{" +
+        "id=" + id +
+        ", number='" + number + '\'' +
+        ", residency='" + residency + '\'' +
+        ", street='" + street + '\'' +
+        ", city='" + city + '\'' +
+        ", state='" + state + '\'' +
+        ", country='" + country + '\'' +
+        ", pincode='" + pincode + '\'' +
+        '}';
   }
 }

@@ -1,43 +1,36 @@
 package com.packt.modern.api.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 import java.sql.Timestamp;
 import java.util.UUID;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-@Entity
-@Table(name = "\"authorization\"")
+@Table("ecomm.\"authorization\"")
 public class AuthorizationEntity {
 
   @Id
-  @GeneratedValue
-  @Column(name = "ID", updatable = false, nullable = false)
+  @Column("id")
   private UUID id;
 
-  @Column(name="AUTHORIZED")
+  @Column("authorized")
   private boolean authorized;
 
-  @Column(name="TIME")
+  @Column("time")
   private Timestamp time;
 
-  @Column(name = "MESSAGE")
+  @Column("message")
   private String message;
 
-  @Column(name = "ERROR")
+  @Column("error")
   private String error;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "ORDER_ID", referencedColumnName = "id")
+  /*@OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "ORDER_ID", referencedColumnName = "id")*/
   private OrderEntity orderEntity;
 
   public UUID getId() {
