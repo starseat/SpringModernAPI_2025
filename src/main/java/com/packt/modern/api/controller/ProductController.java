@@ -7,19 +7,21 @@ import com.packt.modern.api.hateoas.ProductRepresentationModelAssembler;
 import com.packt.modern.api.model.Product;
 import com.packt.modern.api.service.ProductService;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 @RestController
 public class ProductController implements ProductApi {
 
-  private final ProductService service;
   private final ProductRepresentationModelAssembler assembler;
+  private ProductService service;
 
   public ProductController(ProductService service, ProductRepresentationModelAssembler assembler) {
     this.service = service;
@@ -27,13 +29,14 @@ public class ProductController implements ProductApi {
   }
 
   @Override
-  public ResponseEntity<Product> getProduct(String id) {
-    return service.getProduct(id).map(assembler::toModel).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+  public Mono<ResponseEntity<Product>> getProduct(String id, ServerWebExchange exchange) {
+    return service.getProduct(id).map(p -> assembler.entityToModel(p, exchange))
+        .map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build());
   }
 
   @Override
-  public ResponseEntity<List<Product>> queryProducts(@Valid String tag, @Valid String name,
-      @Valid Integer page, @Valid Integer size) {
-    return ok(assembler.toListModel(service.getAllProducts()));
+  public Mono<ResponseEntity<Flux<Product>>> queryProducts(@Valid String tag, @Valid String name,
+      @Valid Integer page, @Valid Integer size, ServerWebExchange exchange) {
+    return Mono.just(ok(assembler.toListModel(service.getAllProducts(), exchange)));
   }
 }

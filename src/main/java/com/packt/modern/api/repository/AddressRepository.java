@@ -3,11 +3,13 @@ package com.packt.modern.api.repository;
 import com.packt.modern.api.entity.AddressEntity;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-public interface AddressRepository extends CrudRepository<AddressEntity, UUID> {
+public interface AddressRepository extends ReactiveCrudRepository<AddressEntity, UUID> {
 }
 

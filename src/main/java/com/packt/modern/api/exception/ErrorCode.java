@@ -5,7 +5,7 @@ package com.packt.modern.api.exception;
  * related validation errors.
  *
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 public enum ErrorCode {
   // Internal Errors: 1 to 0999
@@ -18,15 +18,17 @@ public enum ErrorCode {
   HTTP_REQUEST_METHOD_NOT_SUPPORTED("PACKT-0007", "Request method not supported."),
   CONSTRAINT_VIOLATION("PACKT-0008", "Validation failed."),
   ILLEGAL_ARGUMENT_EXCEPTION("PACKT-0009", "Invalid data passed."),
-  RESOURCE_NOT_FOUND("PACKT-0010", "Requested resource not found"),
-  CUSTOMER_NOT_FOUND("PACKT-0011", "Requested customer not found"),
-  ITEM_NOT_FOUND("PACKT-0012", "Requested item not found"),
-  GENERIC_ALREADY_EXISTS("PACKT-0013", "Already exists.");
+  RESOURCE_NOT_FOUND("PACKT-0010", "Requested resource not found."),
+  CUSTOMER_NOT_FOUND("PACKT-0011", "Requested customer not found."),
+  ITEM_NOT_FOUND("PACKT-0012", "Requested item not found."),
+  GENERIC_ALREADY_EXISTS("PACKT-0013", "Already exists."),
+  GENERIC_STATUS_ERROR("PACKT-0014", "Status error."),
+  CARD_ALREADY_EXISTS("PACKT-0015", "Card already exists.");
 
-  private final String errCode;
-  private final String errMsgKey;
+  private String errCode;
+  private String errMsgKey;
 
-  ErrorCode(final String errCode, final String errMsgKey) {
+  private ErrorCode(final String errCode, final String errMsgKey) {
     this.errCode = errCode;
     this.errMsgKey = errMsgKey;
   }

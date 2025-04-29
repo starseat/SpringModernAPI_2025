@@ -4,19 +4,19 @@ package com.packt.modern.api.exception;
  * @author : github.com/sharmasourabh
  * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
-public class ItemNotFoundException extends Throwable {
+public class CardAlreadyExistsException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
   private final String errMsgKey;
   private final String errorCode;
 
-  public ItemNotFoundException(ErrorCode code) {
+  public CardAlreadyExistsException(ErrorCode code) {
     super(code.getErrMsgKey());
     this.errMsgKey = code.getErrMsgKey();
     this.errorCode = code.getErrCode();
   }
 
-  public ItemNotFoundException(final String message) {
+  public CardAlreadyExistsException(final String message) {
     super(message);
     this.errMsgKey = ErrorCode.CUSTOMER_NOT_FOUND.getErrMsgKey();
     this.errorCode = ErrorCode.CUSTOMER_NOT_FOUND.getErrCode();

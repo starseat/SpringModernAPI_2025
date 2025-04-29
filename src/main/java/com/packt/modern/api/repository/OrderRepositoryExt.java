@@ -2,13 +2,16 @@ package com.packt.modern.api.repository;
 
 import com.packt.modern.api.entity.OrderEntity;
 import com.packt.modern.api.model.NewOrder;
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 public interface OrderRepositoryExt {
-  Optional<OrderEntity> insert(NewOrder m);
+
+  Mono<OrderEntity> insert(Mono<NewOrder> m);
+
+  Mono<OrderEntity> updateMapping(OrderEntity orderEntity);
 }
 

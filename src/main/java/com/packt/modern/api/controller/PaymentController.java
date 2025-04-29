@@ -9,15 +9,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter04 - Modern API Development with Spring and Spring Boot Ed 2
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
  **/
 @RestController
 public class PaymentController implements PaymentApi {
 
-  private final PaymentService service;
+  private PaymentService service;
   private final PaymentRepresentationModelAssembler assembler;
 
   public PaymentController(PaymentService service, PaymentRepresentationModelAssembler assembler) {
@@ -26,13 +28,13 @@ public class PaymentController implements PaymentApi {
   }
 
   @Override
-  public ResponseEntity<Authorization> authorize(@Valid PaymentReq paymentReq) {
+  public Mono<ResponseEntity<Authorization>> authorize(@Valid Mono<PaymentReq> paymentReq, ServerWebExchange exchange) {
     return null;
   }
 
   @Override
-  public ResponseEntity<Authorization> getOrdersPaymentAuthorization(
-      @NotNull @Valid String id) {
+  public Mono<ResponseEntity<Authorization>> getOrdersPaymentAuthorization(
+      @NotNull @Valid String id, ServerWebExchange exchange) {
     return null;
   }
 }
