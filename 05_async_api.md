@@ -368,8 +368,41 @@ public class OrderHandler {
   - 핸들러 메소드 구현 시에는 명령형 스타일이 아닌 함수형 스타일을 사용하며 리액티브 체인이 끊어지지 않도록 해야 함.
   - Repository 는 두 경우 모두 Mono 객체(발행자) 를 반환하고 이는 ServerResponse 내부에 래핑된 응답으로 반환됨.
 
+### 컨트롤러에 대한 전역 예외 처리
+
+- 스프링 웹플럭스에서는 에러를 처리하기 위해 `@ControllerAdvice` 가 아닌 `ErrorAttributes` 를 사용
+  - 예제에서는 `ApiErrorAttrubite` 클래스 사용. (`DefaultErrorAttributes` 인터페이스 확정)
+  - `DefaultErrorAttributes` 속성
+    - timestamp: 에러가 캡쳐된 시간
+    - status: 상태 코드
+    - error: 에러 설명
+    - exception: 루트 예외의 클래스 이름(설정된 경우)
+    - message: 예외 메시지(설정된 경우)
+    - errors: BindingResult 예외의 모든 ObjectErrors(설정된 경우)
+    - trace: 예외 스택 추적(설정된 경우)
+    - path: 예외가 발생한 경로
+    - requestId: 현재 요청과 연결된 고유 ID
+
+- `ApiErrorAttrubite` 를 사용하기 위해 `ApiErrorWebExceptionHandler` 생성(`AbstractErrorWebExceptionHandler` 확장)
+  - `ApiErrorWebExceptionHandler` 의 `@Order(-2)` 는 아래 내용에 따른 우선순위 지정
+    - `ResponseStatusExceptionHandler` 는 스프링 프레임워크에 의해 0 으로 정렬됨.
+    - `DefaultErrorWebExceptionHandler` 는 -1 로 정렬됨.
+    - 이 두 가지보다 우선 순위를 지정하지 않으면 실행되지 않음.
+
+
+### R2DBC
+
+- MongoDB 와 같은 많은 NoSQL 데이터베이스는 이미 리액티브 데이터베이스 드라이버를 제공
+- R2DBC(Reactive Relational Database Connectivity) 기반 드라이버는 완전한 논-블로킹/리액티브 API 호출을 위해 JDBC 대신 관계형 데이터베이스에 사용해야 함. 
+  - H2, Oracle Database, MySQL, MariaDB, SQL Server, PostgreSQL 등 거의 모든 인기있는 관계형 데이터베이스는 R2DBC 드라이버를 지원.
+- 스프링 데이터 R2DBC 는 ReactiveCrudRepository, ReactiveSortingRepository, RxJava2CrudRepository, RxJava3CrudRepository 와 같은 Reactor 및 RxJava 를 위한 다양한 리파지토리 제공
+  - 예: OrderRepository.java
+
+
 # 참고
 
 - [Project Reactor](https://projectreactor.io/)
 - [프로젝트 리액터 고급 활용](https://devsh.tistory.com/entry/프로젝트-리액터-고급-활용)
 - [Hot vs Cold Publisher](https://p-bear.tistory.com/80)
+- [스프링 리액티브](https://docs.spring.io/spring-boot/reference/web/reactive.html)
+- [스프링 데이터 R2DBC](https://spring.io/projects/spring-data-r2dbc)
