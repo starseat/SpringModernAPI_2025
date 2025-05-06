@@ -61,24 +61,24 @@ CSRF(Cross-Site Request Forgery)와 CORS(Cross-Origin Resource Sharing) 에 대�
 1. GET 방식으로 `/api/v1/addresses` 요청을 받음.
 2. `BearerTokenAuthenticationFilter` 작동
 3. 만약 요청에 `Authorization` 헤더가 없다면 
- 3.1. `BearerTokenAuthenticationFilter` 가 베어러 토큰을 찾지 못하기 떄문에 인증 프로세스를 진행하지 않음.
- 3.2. 이 경우 `BearerTokenAuthenticationFilter` 는 `FilterSecurityInterceptor` 에 호출에 대한 처리를 맡기고, `FilterSecurityInterceptor` 는 `AccessDeniedException` 예외를 발생시킴. (이 예외를 `ExceptionTranslationFilter` 가 처리) 
- 3.3. 이제 제어의 흐름이 `BearerTokenAuthenticationEntryPoint` 로 이동하고,  `BearerTokenAuthenticationEntryPoint` 는 `401 Unauthorized` 상태 코드와 함께 `Bearer` 라는 문자열 값이 포함된 `WWW-Authenticate` 헤더를 클라이언트로 전달함.
- 3.4. 클라이언트는 `Bearer` 문장열이 포함된 `WWW-Authenticate` 헤더를 수신하는 경우에 유효한 `Bearer` 토큰이 포함된 `Authorization` 헤더를 사용해 재시도 해야 함.
- 3.5. 이 단계에서는 클라이언트가 요청을 재생할 수 있기 때문에 보안상의 이유로 `requestCache` 설정은 `NullRequestCache` 로 설정
+ <pre> 3.1. `BearerTokenAuthenticationFilter` 가 베어러 토큰을 찾지 못하기 떄문에 인증 프로세스를 진행하지 않음. </pre>
+ <pre> 3.2. 이 경우 `BearerTokenAuthenticationFilter` 는 `FilterSecurityInterceptor` 에 호출에 대한 처리를 맡기고, `FilterSecurityInterceptor` 는 `AccessDeniedException` 예외를 발생시킴. (이 예외를 `ExceptionTranslationFilter` 가 처리) </pre> 
+ <pre> 3.3. 이제 제어의 흐름이 `BearerTokenAuthenticationEntryPoint` 로 이동하고,  `BearerTokenAuthenticationEntryPoint` 는 `401 Unauthorized` 상태 코드와 함께 `Bearer` 라는 문자열 값이 포함된 `WWW-Authenticate` 헤더를 클라이언트로 전달함. </pre>
+ <pre> 3.4. 클라이언트는 `Bearer` 문장열이 포함된 `WWW-Authenticate` 헤더를 수신하는 경우에 유효한 `Bearer` 토큰이 포함된 `Authorization` 헤더를 사용해 재시도 해야 함. </pre>
+ <pre> 3.5. 이 단계에서는 클라이언트가 요청을 재생할 수 있기 때문에 보안상의 이유로 `requestCache` 설정은 `NullRequestCache` 로 설정 </pre>
 4. HTTP 요청이  `Authorization` 헤더를 포함하고 있다면
- 4.1. `BearerTokenAuthenticationFilter` 는 HTTP 요청에서 `Authorization` 헤더를 추출하고 `Authorization` 헤더에서 토큰 추출
- 4.2. 이 필터는 토큰값을 사용해 `BearertokenAuthenticationToken` 인스턴스 생성
- 4.3. `BearertokenAuthenticationToken` 은 `Authentication` 인터페이스를 구현한 `AbstractAuthenticationToken` 클래스의 하위 클래스로 인증된 요청에 대한 토큰과 인증 대상에 대한 정보를 포함하고 있음.
-5. HTTP 요청은 설정에 따라 `AuthenticationManager` 를 제공하는 `AuthenticationManagerResolver` 로 전달되고 `AuthenticationManager` 가 `BearerTokenAuthenticationToken` 토큰을 검증
+ <pre> 4.1. `BearerTokenAuthenticationFilter` 는 HTTP 요청에서 `Authorization` 헤더를 추출하고 `Authorization` 헤더에서 토큰 추출 </pre>
+ <pre> 4.2. 이 필터는 토큰값을 사용해 `BearertokenAuthenticationToken` 인스턴스 생성 </pre>
+ <pre> 4.3. `BearertokenAuthenticationToken` 은 `Authentication` 인터페이스를 구현한 `AbstractAuthenticationToken` 클래스의 하위 클래스로 인증된 요청에 대한 토큰과 인증 대상에 대한 정보를 포함하고 있음. </pre>
+5. HTTP 요청은 설정에 따라 `AuthenticationManager` 를 제공하는 `AuthenticationManagerResolver` 로 전달되고 `AuthenticationManager` 가 `BearerTokenAuthenticationToken` 토큰을 검증 </pre>
 6. 인증 과정이 설공하면
- 6.1. `SecurityContext` 인스턴스에 `Authentication` 객체가 설정됨.
- 6.2. 그런 다음 이 인스턴스는 `SecurityContextHolder.setContext()` 에 전달됨.
- 6.3. 요청은 후속 처리를 위해 나머지 필터로 전달된 다음 `DispatcherServlet` 으로 라우팅 되고 마지막으로 `AddressController` 로 라우팅 됨.
+ <pre> 6.1. `SecurityContext` 인스턴스에 `Authentication` 객체가 설정됨. </pre>
+ <pre> 6.2. 그런 다음 이 인스턴스는 `SecurityContextHolder.setContext()` 에 전달됨. </pre>
+ <pre> 6.3. 요청은 후속 처리를 위해 나머지 필터로 전달된 다음 `DispatcherServlet` 으로 라우팅 되고 마지막으로 `AddressController` 로 라우팅 됨. </pre>
 7. 인증이 실패하면
- 7.1. `SecurityContextHolder.clearContext()` 가 호출되어 컨텍스트 값을 정리함.
- 7.2. 이 경우에는 `ExceptionTranslationFilter` 가 작동
- 7.3. 제어 흐름이 `BearerTokenAuthenticationEntryPoint` 로 이동되고, `BearerTokenAuthenticationEntryPoint` 는 `401 ㄷUnauthorized` 상태 코드와 함께 `WWW-Authenticate` 헤더에 아래와 같은 적절한 에러 메시지를 포함하는 값을 설정하여 클라이언트쪽으로 응답함.
+ <pre> 7.1. `SecurityContextHolder.clearContext()` 가 호출되어 컨텍스트 값을 정리함. </pre>
+ <pre> 7.2. 이 경우에는 `ExceptionTranslationFilter` 가 작동 </pre>
+ <pre> 7.3. 제어 흐름이 `BearerTokenAuthenticationEntryPoint` 로 이동되고, `BearerTokenAuthenticationEntryPoint` 는 `401 ㄷUnauthorized` 상태 코드와 함께 `WWW-Authenticate` 헤더에 아래와 같은 적절한 에러 메시지를 포함하는 값을 설정하여 클라이언트쪽으로 응답함. </pre>
 
 ~~~text
 Bearer error="invalid_token", 
