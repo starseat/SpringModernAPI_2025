@@ -1,25 +1,26 @@
 package com.packt.modern.api.entity;
 
+import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 import java.util.UUID;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-@Table("ecomm.shipment")
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
+@Entity
+@Table(name = "shipment")
 public class ShipmentEntity {
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  @Column("est_delivery_date")
+  @Column(name = "EST_DELIVERY_DATE")
   private Timestamp estDeliveryDate;
 
-  @Column("carrier")
+  @Column(name = "CARRIER")
   private String carrier;
 
   public UUID getId() {
@@ -48,5 +49,4 @@ public class ShipmentEntity {
     this.carrier = carrier;
     return this;
   }
-
 }

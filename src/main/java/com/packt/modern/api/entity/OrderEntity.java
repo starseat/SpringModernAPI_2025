@@ -1,63 +1,68 @@
 package com.packt.modern.api.entity;
 
 import com.packt.modern.api.model.Order.StatusEnum;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-@Table("ecomm.orders")
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
+@Entity
+@Table(name = "orders")
 public class OrderEntity {
-
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  @Column("customer_id")
-  private UUID customerId;
-
-  @Column("address_id")
-  private UUID addressId;
-
-  @Column("card_id")
-  private UUID cardId;
-
-  @Column("order_date")
-  private Timestamp orderDate;
-
-  @Column("total")
+  @Column(name = "TOTAL")
   private BigDecimal total;
 
-  @Column("payment_id")
-  private UUID paymentId;
-
-  @Column("shipment_id")
-  private UUID shipmentId;
-
-  @Column("status")
+  @Column(name = "STATUS")
+  @Enumerated(EnumType.STRING)
   private StatusEnum status;
 
-  private UUID cartId;
-
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinColumn(name = "CUSTOMER_ID", nullable = false)
   private UserEntity userEntity;
 
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinColumn(
+      name = "ADDRESS_ID",
+      referencedColumnName = "ID",
+      insertable = false,
+      updatable = false)
   private AddressEntity addressEntity;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "PAYMENT_ID", referencedColumnName = "ID")
   private PaymentEntity paymentEntity;
 
-  private List<ShipmentEntity> shipments = new ArrayList<>();
+  @JoinColumn(name = "SHIPMENT_ID", referencedColumnName = "ID")
+  @OneToOne
+  private ShipmentEntity shipment;
 
+  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinColumn(name = "CARD_ID", referencedColumnName = "ID")
   private CardEntity cardEntity;
 
+  @Column(name = "ORDER_DATE")
+  private Timestamp orderDate;
+
+  @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "ORDER_ITEM",
+      joinColumns = @JoinColumn(name = "ORDER_ID"),
+      inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
   private List<ItemEntity> items = new ArrayList<>();
 
+  @OneToOne(mappedBy = "orderEntity")
   private AuthorizationEntity authorizationEntity;
 
   public UUID getId() {
@@ -114,12 +119,12 @@ public class OrderEntity {
     return this;
   }
 
-  public List<ShipmentEntity> getShipments() {
-    return shipments;
+  public ShipmentEntity getShipments() {
+    return shipment;
   }
 
-  public OrderEntity setShipments(List<ShipmentEntity> shipments) {
-    this.shipments = shipments;
+  public OrderEntity setShipments(ShipmentEntity shipment) {
+    this.shipment = shipment;
     return this;
   }
 
@@ -154,109 +159,36 @@ public class OrderEntity {
     return authorizationEntity;
   }
 
-  public OrderEntity setAuthorizationEntity(
-      AuthorizationEntity authorizationEntity) {
+  public OrderEntity setAuthorizationEntity(AuthorizationEntity authorizationEntity) {
     this.authorizationEntity = authorizationEntity;
     return this;
   }
 
-  public UUID getCustomerId() {
-    return customerId;
-  }
-
-  public OrderEntity setCustomerId(UUID customerId) {
-    this.customerId = customerId;
-    return this;
-  }
-
-  public UUID getAddressId() {
-    return addressId;
-  }
-
-  public OrderEntity setAddressId(UUID addressId) {
-    this.addressId = addressId;
-    return this;
-  }
-
-  public UUID getCardId() {
-    return cardId;
-  }
-
-  public OrderEntity setCardId(UUID cardId) {
-    this.cardId = cardId;
-    return this;
-  }
-
-  public UUID getPaymentId() {
-    return paymentId;
-  }
-
-  public OrderEntity setPaymentId(UUID paymentId) {
-    this.paymentId = paymentId;
-    return this;
-  }
-
-  public UUID getShipmentId() {
-    return shipmentId;
-  }
-
-  public OrderEntity setShipmentId(UUID shipmentId) {
-    this.shipmentId = shipmentId;
-    return this;
-  }
-
-  public UUID getCartId() {
-    return cartId;
-  }
-
-  public OrderEntity setCartId(UUID cartId) {
-    this.cartId = cartId;
-    return this;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    OrderEntity entity = (OrderEntity) o;
-    return Objects.equals(id, entity.id) && Objects
-        .equals(customerId, entity.customerId) && Objects
-        .equals(addressId, entity.addressId) && Objects.equals(cardId, entity.cardId)
-        && Objects.equals(orderDate, entity.orderDate) && Objects
-        .equals(total, entity.total) && Objects.equals(paymentId, entity.paymentId)
-        && Objects.equals(shipmentId, entity.shipmentId) && status == entity.status;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects
-        .hash(id, customerId, addressId, cardId, orderDate, total, paymentId, shipmentId, status);
-  }
-
   @Override
   public String toString() {
-    return "OrderEntity{" +
-        "id=" + id +
-        ", customerId=" + customerId +
-        ", addressId=" + addressId +
-        ", cardId=" + cardId +
-        ", orderDate=" + orderDate +
-        ", total=" + total +
-        ", paymentId=" + paymentId +
-        ", shipmentId=" + shipmentId +
-        ", status=" + status +
-        ", cartId=" + cartId +
-        ", userEntity=" + userEntity +
-        ", addressEntity=" + addressEntity +
-        ", paymentEntity=" + paymentEntity +
-        ", shipments=" + shipments +
-        ", cardEntity=" + cardEntity +
-        ", items=" + items +
-        ", authorizationEntity=" + authorizationEntity +
-        '}';
+    return "OrderEntity{"
+        + "id="
+        + id
+        + ", total="
+        + total
+        + ", status="
+        + status
+        + ", userEntity="
+        + userEntity
+        + ", addressEntity="
+        + addressEntity
+        + ", paymentEntity="
+        + paymentEntity
+        + ", shipment="
+        + shipment
+        + ", cardEntity="
+        + cardEntity
+        + ", orderDate="
+        + orderDate
+        + ", items="
+        + items
+        + ", authorizationEntity="
+        + authorizationEntity
+        + '}';
   }
 }

@@ -1,35 +1,34 @@
 package com.packt.modern.api.entity;
 
-import java.util.*;
+import jakarta.persistence.*;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
-import reactor.core.publisher.Flux;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-@Table("ecomm.cart")
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
+@Entity
+@Table(name = "cart")
 public class CartEntity {
 
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  /*@OneToOne
-  @JoinColumn(name = "USER_ID", referencedColumnName = "ID")*/
+  @OneToOne
+  @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
   private UserEntity user;
 
-  /*@OneToMany(
-      cascade = CascadeType.ALL
-  )
+  @ManyToMany(cascade = CascadeType.ALL)
   @JoinTable(
       name = "CART_ITEM",
       joinColumns = @JoinColumn(name = "CART_ID"),
-      inverseJoinColumns = @JoinColumn(name = "ITEM_ID")
-  )*/
+      inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
   private List<ItemEntity> items = new ArrayList<>();
 
   public UUID getId() {
@@ -74,14 +73,5 @@ public class CartEntity {
   @Override
   public int hashCode() {
     return Objects.hash(user, items);
-  }
-
-  @Override
-  public String toString() {
-    return "CartEntity{" +
-        "id=" + id +
-        ", user=" + user +
-        ", items=" + items +
-        '}';
   }
 }

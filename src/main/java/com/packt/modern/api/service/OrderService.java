@@ -4,20 +4,18 @@ import com.packt.modern.api.entity.OrderEntity;
 import com.packt.modern.api.model.NewOrder;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
 public interface OrderService {
 
-  Mono<OrderEntity> addOrder(@Valid Mono<NewOrder> newOrder);
+  Optional<OrderEntity> addOrder(@Valid NewOrder newOrder);
 
-  Mono<OrderEntity> updateMapping(@Valid OrderEntity orderEntity);
+  Iterable<OrderEntity> getOrdersByCustomerId(@NotNull @Valid String customerId);
 
-  Flux<OrderEntity> getOrdersByCustomerId(@NotNull @Valid String customerId);
-
-  Mono<OrderEntity> getByOrderId(String id);
+  Optional<OrderEntity> getByOrderId(String id);
 }

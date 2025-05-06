@@ -1,28 +1,27 @@
 package com.packt.modern.api.entity;
 
+import jakarta.persistence.*;
+
 import java.util.Objects;
 import java.util.UUID;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-
-@Table("ecomm.order_item")
+ * @project : Chapter05 - Modern API Development with Spring and Spring Boot
+ */
+@Entity
+@Table(name = "order_item")
 public class OrderItemEntity {
 
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  @Column("order_id")
+  @Column(name = "order_id")
   private UUID orderId;
 
-  @Column("item_id")
+  @Column(name = "item_id")
   private UUID itemId;
 
   public UUID getId() {
@@ -61,7 +60,8 @@ public class OrderItemEntity {
       return false;
     }
     OrderItemEntity that = (OrderItemEntity) o;
-    return Objects.equals(id, that.id) && Objects.equals(orderId, that.orderId)
+    return Objects.equals(id, that.id)
+        && Objects.equals(orderId, that.orderId)
         && Objects.equals(itemId, that.itemId);
   }
 
@@ -72,10 +72,6 @@ public class OrderItemEntity {
 
   @Override
   public String toString() {
-    return "OrderItemEntity{" +
-        "id=" + id +
-        ", orderId=" + orderId +
-        ", itemId=" + itemId +
-        '}';
+    return "OrderItemEntity{" + "id=" + id + ", orderId=" + orderId + ", itemId=" + itemId + '}';
   }
 }

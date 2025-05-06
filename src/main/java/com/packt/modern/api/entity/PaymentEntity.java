@@ -1,28 +1,29 @@
 package com.packt.modern.api.entity;
 
+import jakarta.persistence.*;
+
 import java.util.UUID;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-@Table("ecomm.payment")
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
+@Entity
+@Table(name = "payment")
 public class PaymentEntity {
 
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  @Column("authorized")
+  @Column(name = "AUTHORIZED")
   private boolean authorized;
 
-  @Column("message")
+  @Column(name = "MESSAGE")
   private String message;
 
-  // @OneToOne(mappedBy = "paymentEntity")
+  @OneToOne(mappedBy = "paymentEntity")
   private OrderEntity orderEntity;
 
   public UUID getId() {

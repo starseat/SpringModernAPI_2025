@@ -34,7 +34,8 @@ tags:
     description: Operations about shippings
   - name: product
     description: Operations about products
-
+  - name: user
+    description: Operations about signup, signin and so on
 
 paths:
   /api/v1/carts/{customerId}:
@@ -63,7 +64,7 @@ paths:
                 $ref: '#/components/schemas/Cart'
         404:
           description: Given customer ID doesn't exist
-          content: {}
+          content: { }
     delete:
       tags:
         - cart
@@ -82,7 +83,7 @@ paths:
           description: successful operation
         404:
           description: Given customer ID doesn't exist
-          content: {}
+          content: { }
   /api/v1/carts/{customerId}/items:
     get:
       tags:
@@ -113,7 +114,7 @@ paths:
                   $ref: '#/components/schemas/Item'
         404:
           description: Given customer ID doesn't exist
-          content: {}
+          content: { }
     post:
       tags:
         - cart
@@ -152,7 +153,7 @@ paths:
                   $ref: '#/components/schemas/Item'
         404:
           description: Given customer ID doesn't exist
-          content: {}
+          content: { }
     put:
       tags:
         - cart
@@ -191,7 +192,7 @@ paths:
                   $ref: '#/components/schemas/Item'
         404:
           description: Given customer ID doesn't exist
-          content: {}
+          content: { }
   /api/v1/carts/{customerId}/items/{itemId}:
     get:
       tags:
@@ -224,7 +225,7 @@ paths:
                 $ref: '#/components/schemas/Item'
         404:
           description: Given item (product) ID doesn't exist
-          content: {}
+          content: { }
     delete:
       tags:
         - cart
@@ -251,7 +252,7 @@ paths:
     post:
       tags:
         - order
-      summary:  Creates a new order for the given order request
+      summary: Creates a new order for the given order request
       description: Creates a new order for the given order request.
       operationId: addOrder
       requestBody:
@@ -275,7 +276,7 @@ paths:
                 $ref: '#/components/schemas/Order'
         406:
           description: If payment is not authorized.
-          content: {}
+          content: { }
     get:
       tags:
         - order
@@ -305,7 +306,7 @@ paths:
                   $ref: '#/components/schemas/Order'
         404:
           description: Order doesn't exist for given user.
-          content: {}
+          content: { }
   /api/v1/orders/{id}:
     get:
       tags:
@@ -332,7 +333,7 @@ paths:
                 $ref: '#/components/schemas/Order'
         404:
           description: Order doesn't exist for given user.
-          content: {}
+          content: { }
   /api/v1/customers:
     get:
       tags:
@@ -394,7 +395,7 @@ paths:
       responses:
         202:
           description: Request accepted, returns this status even if user does not exist
-          content: {}
+          content: { }
   /api/v1/customers/{id}/cards:
     get:
       tags:
@@ -530,7 +531,7 @@ paths:
       responses:
         202:
           description: Accepts the deletion request and perform deletion. If ID does not exist, does nothing.
-          content: {}
+          content: { }
   /api/v1/cards:
     get:
       tags:
@@ -616,7 +617,7 @@ paths:
       responses:
         202:
           description: Accepts the deletion request and perform deletion. If ID does not exist, does nothing.
-          content: {}
+          content: { }
   /api/v1/payments:
     post:
       tags:
@@ -681,8 +682,8 @@ paths:
             schema:
               $ref: '#/components/schemas/ShippingReq'
       responses:
-        200:
-          description: For successful fetch.
+        201:
+          description: For successful post.
           content:
             application/xml:
               schema:
@@ -690,6 +691,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Authorization'
+  /api/v1/shipping/{id}:
     get:
       tags:
         - shipment
@@ -791,6 +793,98 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+  /api/v1/users:
+    post:
+      tags:
+        - user
+      summary: Signup the a new customer (user)
+      description: Creates a new customer (user), who can login and do the shopping.
+      operationId: signUp
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: For successful user creation.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+  /api/v1/auth/token:
+    post:
+      tags:
+        - user
+      summary: Signin the customer (user)
+      description: Signin the customer (user) that generates the JWT (access token) and refresh token, which can be used for accessing APIs.
+      operationId: signIn
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/SignInReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInReq'
+      responses:
+        200:
+          description: For user sign-in. Once successful, user receives the access and refresh token.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+    delete:
+      tags:
+        - user
+      summary: Signouts the customer (user)
+      description: Signouts the customer (user). It removes the refresh token from DB. Last issued JWT should be removed from client end that if not removed last for given expiration time.
+      operationId: signOut
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        202:
+          description: Accepts the request for logout.
+  /api/v1/auth/token/refresh:
+    post:
+      tags:
+        - user
+      summary: Provides new JWT based on valid refresh token.
+      description: Provides new JWT based on valid refresh token.
+      operationId: getAccessToken
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        200:
+          description: For successful operation.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
 components:
   schemas:
     Cart:
@@ -815,13 +909,22 @@ components:
         id:
           description: Item Identifier
           type: string
+        name:
+          description: Item name
+          type: string
+        description:
+          description: Item description
+          type: string
+        imageUrl:
+          description: Item image URL
+          type: string
         quantity:
           description: The item quantity
           type: integer
           format: int32
         unitPrice:
           description: The item's price per unit
-          type: BigDecimal
+          $ref: '#/components/schemas/BigDecimal'
     Order:
       description: Represents an order
       type: object
@@ -846,7 +949,7 @@ components:
             $ref: '#/components/schemas/Item'
         total:
           description: Order total
-          type: BigDecimal
+          $ref: '#/components/schemas/BigDecimal'
         payment:
           $ref: '#/components/schemas/Payment'
         shipment:
@@ -998,6 +1101,10 @@ components:
           type: string
         userStatus:
           type: string
+        addressId:
+          type: string
+        cardId:
+          type: string
       xml:
         name: User
     NewOrder:
@@ -1021,6 +1128,8 @@ components:
       type: object
       xml:
         name: URI
+    BigDecimal:
+      type: BigDecimal
     Authorization:
       type: object
       properties:
@@ -1057,7 +1166,7 @@ components:
           $ref: '#/components/schemas/Card'
         amount:
           description: Payment amount
-          type: BigDecimal
+          $ref: '#/components/schemas/BigDecimal'
       xml:
         name: PaymentReq
     CustomerInfoOnCard:
@@ -1090,7 +1199,7 @@ components:
           type: string
         price:
           description: Product price
-          type: BigDecimal
+          $ref: '#/components/schemas/BigDecimal'
         count:
           description: Product count
           type: integer
@@ -1109,4 +1218,37 @@ components:
           type: string
         name:
           description: Tag Name
+          type: string
+    SignInReq:
+      description: Request body for Sign-in
+      type: object
+      properties:
+        username:
+          description: username of the User
+          type: string
+        password:
+          description: password of the User
+          type: string
+    SignedInUser:
+      description: Signed-in user information
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
+        accessToken:
+          description: JWT Token aka access token
+          type: string
+        username:
+          description: User Name
+          type: string
+        userId:
+          description: User Identifier
+          type: string
+    RefreshToken:
+      description: Contains the refresh token
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
           type: string

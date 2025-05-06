@@ -50,30 +50,19 @@ dependencies {
     // OpenAPI Ends
 
     // DB Starts
-    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
-    implementation 'com.h2database:h2'
-    runtimeOnly 'io.r2dbc:r2dbc-h2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'com.h2database:h2'
     // DB Ends
 
-    // Flyway: Start
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    // Flyway: End
+    // Security Starts
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:4.3.0'
+    // Security Ends
 
-    // Reactive Start
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testImplementation 'io.projectreactor:reactor-test'
-    // Reactive End
-}
-
-configurations.configureEach {
-    resolutionStrategy.dependencySubstitution.all { dependency ->
-        if (dependency.requested instanceof ModuleComponentSelector && dependency.requested.module == 'spring-boot-starter-reactor-netty') {
-            dependency.useTarget("org.springframework.boot:spring-boot-starter-tomcat:$dependency.requested.version", 'Use Undertow instead of Reactor Netty')
-        }
-    }
 }
 
 test {

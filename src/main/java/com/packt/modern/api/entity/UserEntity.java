@@ -1,58 +1,66 @@
 package com.packt.modern.api.entity;
 
-import java.util.UUID;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
-import reactor.core.publisher.Flux;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-@Table("ecomm.\"user\"")
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
+@Entity
+@Table(name = "\"user\"")
 public class UserEntity {
-
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
   @NotNull(message = "User name is required.")
-  @Column("username")
+  @Basic(optional = false)
+  @Column(name = "USERNAME")
   private String username;
 
-  @Column("password")
+  @Column(name = "PASSWORD")
   private String password;
 
-  @Column("first_name")
+  @Column(name = "FIRST_NAME")
   private String firstName;
 
-  @Column("last_name")
+  @Column(name = "LAST_NAME")
   private String lastName;
 
-  @Column("email")
+  @Column(name = "EMAIL")
   private String email;
 
-  @Column("phone")
+  @Column(name = "PHONE")
   private String phone;
 
-  @Column("user_status")
-  private String userStatus;
+  @Column(name = "USER_STATUS")
+  private String userStatus = "ACTIVE";
 
-  /*@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @Column(name = "ROLE")
+  @Enumerated(EnumType.STRING)
+  private RoleEnum role = RoleEnum.USER;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinTable(
       name = "USER_ADDRESS",
       joinColumns = @JoinColumn(name = "USER_ID"),
-      inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID")
-  )*/
-  //private Flux<AddressEntity> addresses = Flux.empty();
+      inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID"))
+  private List<AddressEntity> addresses = new ArrayList<>();
 
-  //  @OneToOne(mappedBy = "user")
-  private CardEntity card;
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  private List<CardEntity> cards;
 
-  //  @OneToOne(mappedBy = "user")
+  @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
   private CartEntity cart;
+
+  @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+  private List<OrderEntity> orders;
 
   public UUID getId() {
     return id;
@@ -126,22 +134,21 @@ public class UserEntity {
     return this;
   }
 
-  /*public Flux<AddressEntity> getAddresses() {
+  public List<AddressEntity> getAddresses() {
     return addresses;
   }
 
-  public UserEntity setAddresses(
-      Flux<AddressEntity> addresses) {
+  public UserEntity setAddresses(List<AddressEntity> addresses) {
     this.addresses = addresses;
     return this;
-  }*/
-
-  public CardEntity getCard() {
-    return card;
   }
 
-  public UserEntity setCard(CardEntity card) {
-    this.card = card;
+  public List<CardEntity> getCard() {
+    return cards;
+  }
+
+  public UserEntity setCard(List<CardEntity> card) {
+    this.cards = card;
     return this;
   }
 
@@ -152,5 +159,62 @@ public class UserEntity {
   public UserEntity setCart(CartEntity cart) {
     this.cart = cart;
     return this;
+  }
+
+  public List<OrderEntity> getOrder() {
+    return orders;
+  }
+
+  public UserEntity setOrder(List<OrderEntity> order) {
+    this.orders = order;
+    return this;
+  }
+
+  public RoleEnum getRole() {
+    return role;
+  }
+
+  public UserEntity setRole(RoleEnum role) {
+    this.role = role;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return "UserEntity{"
+        + "id="
+        + id
+        + ", username='"
+        + username
+        + '\''
+        + ", password='"
+        + password
+        + '\''
+        + ", firstName='"
+        + firstName
+        + '\''
+        + ", lastName='"
+        + lastName
+        + '\''
+        + ", email='"
+        + email
+        + '\''
+        + ", phone='"
+        + phone
+        + '\''
+        + ", userStatus='"
+        + userStatus
+        + '\''
+        + ", role="
+        + role
+        + ", addresses="
+        + addresses
+        + ", cards="
+        + cards
+        + ", cart="
+        + cart
+        + ", orders="
+        + orders
+        + '}';
   }
 }

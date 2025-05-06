@@ -1,54 +1,56 @@
 package com.packt.modern.api.entity;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
-@Table("ecomm.product")
+@Entity
+@Table(name = "product")
 public class ProductEntity {
 
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
   @NotNull(message = "Product name is required.")
-  //@Basic(optional = false)
-  @Column("name")
+  @Basic(optional = false)
+  @Column(name = "NAME")
   private String name;
 
-  @Column("description")
+  @Column(name = "DESCRIPTION")
   private String description;
 
-  @Column("price")
+  @Column(name = "PRICE")
   private BigDecimal price;
 
-  @Column("count")
+  @Column(name = "COUNT")
   private int count;
 
-  @Column("image_url")
+  @Column(name = "IMAGE_URL")
   private String imageUrl;
 
-  /*@OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = CascadeType.ALL)
   @JoinTable(
       name = "PRODUCT_TAG",
       joinColumns = @JoinColumn(name = "PRODUCT_ID"),
-      inverseJoinColumns = @JoinColumn(name = "TAG_ID")
-  )*/
-  @Transient
+      inverseJoinColumns = @JoinColumn(name = "TAG_ID"))
   private List<TagEntity> tags = new ArrayList<>();
 
-  //  @OneToOne(mappedBy = "product")
-  private ItemEntity item;
+  @OneToMany(mappedBy = "product")
+  private List<ItemEntity> items;
 
-  public ProductEntity(UUID id, @NotNull(message = "Product name is required.") String name,
-      String description, BigDecimal price, int count, String imageUrl) {
+  public ProductEntity(
+      UUID id,
+      @NotNull(message = "Product name is required.") String name,
+      String description,
+      BigDecimal price,
+      int count,
+      String imageUrl) {
     this.id = id;
     this.name = name;
     this.price = price;
@@ -57,8 +59,7 @@ public class ProductEntity {
     this.imageUrl = imageUrl;
   }
 
-  public ProductEntity() {
-  }
+  public ProductEntity() {}
 
   public UUID getId() {
     return id;
@@ -123,12 +124,12 @@ public class ProductEntity {
     return this;
   }
 
-  public ItemEntity getItem() {
-    return item;
+  public List<ItemEntity> getItem() {
+    return items;
   }
 
-  public ProductEntity setItem(ItemEntity item) {
-    this.item = item;
+  public ProductEntity setItem(List<ItemEntity> item) {
+    this.items = item;
     return this;
   }
 }

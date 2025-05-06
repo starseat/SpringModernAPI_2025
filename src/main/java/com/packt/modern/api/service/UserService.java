@@ -3,20 +3,35 @@ package com.packt.modern.api.service;
 import com.packt.modern.api.entity.AddressEntity;
 import com.packt.modern.api.entity.CardEntity;
 import com.packt.modern.api.entity.UserEntity;
+import com.packt.modern.api.model.RefreshToken;
+import com.packt.modern.api.model.SignedInUser;
+import com.packt.modern.api.model.User;
+
 import java.util.Optional;
-import java.util.UUID;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
 public interface UserService {
-  Mono<Void> deleteCustomerById(String id);
-  Mono<Void> deleteCustomerById(UUID id);
-  Flux<AddressEntity> getAddressesByCustomerId(String id);
-  Flux<UserEntity> getAllCustomers();
-  Mono<CardEntity> getCardByCustomerId(String id);
-  Mono<UserEntity> getCustomerById(String id);
+
+  void deleteCustomerById(String id);
+
+  Optional<Iterable<AddressEntity>> getAddressesByCustomerId(String id);
+
+  Iterable<UserEntity> getAllCustomers();
+
+  Optional<CardEntity> getCardByCustomerId(String id);
+
+  Optional<UserEntity> getCustomerById(String id);
+
+  Optional<SignedInUser> createUser(User user);
+
+  UserEntity findUserByUsername(String username);
+
+  SignedInUser getSignedInUser(UserEntity userEntity);
+
+  Optional<SignedInUser> getAccessToken(RefreshToken refreshToken);
+
+  void removeRefreshToken(RefreshToken refreshToken);
 }

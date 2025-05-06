@@ -1,81 +1,57 @@
 package com.packt.modern.api.hateoas;
 
-import static java.util.stream.Collectors.toList;
-
+import com.packt.modern.api.controller.CartsController;
 import com.packt.modern.api.entity.CartEntity;
-import com.packt.modern.api.entity.ItemEntity;
 import com.packt.modern.api.model.Cart;
-import com.packt.modern.api.model.Item;
 import com.packt.modern.api.service.ItemService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.reactive.ReactiveRepresentationModelAssembler;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
 @Component
-public class CartRepresentationModelAssembler implements
-    ReactiveRepresentationModelAssembler<CartEntity, Cart>, HateoasSupport {
+public class CartRepresentationModelAssembler
+    extends RepresentationModelAssemblerSupport<CartEntity, Cart> {
 
-  private static String serverUri = null;
-  private ItemService itemService;
+  private final ItemService itemService;
 
+  /**
+   * Creates a new {@link RepresentationModelAssemblerSupport} using the given controller class and
+   * resource type.
+   */
   public CartRepresentationModelAssembler(ItemService itemService) {
+    super(CartsController.class, Cart.class);
     this.itemService = itemService;
   }
 
-  private String getServerUri(@Nullable ServerWebExchange exchange) {
-    if (Strings.isBlank(serverUri)) {
-      serverUri = getUriComponentBuilder(exchange).toUriString();
-    }
-    return serverUri;
-  }
-
   /**
-   * Coverts the Cart entity to resource
+   * Coverts the Card entity to resource
    *
    * @param entity
    */
-  public Mono<Cart> toModel(CartEntity entity, ServerWebExchange exchange) {
-    return Mono.just(entityToModel(entity, exchange));
-  }
-
-  public Cart entityToModel(CartEntity entity, ServerWebExchange exchange) {
+  @Override
+  public Cart toModel(CartEntity entity) {
+    String uid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId().toString() : null;
+    String cid = Objects.nonNull(entity.getId()) ? entity.getId().toString() : null;
     Cart resource = new Cart();
-    if(Objects.isNull(entity)) {
-      return resource;
-    }
-    resource.id(entity.getId().toString()).customerId(entity.getUser().getId().toString()).items(itemfromEntities(entity.getItems()));
-    String serverUri = getServerUri(exchange);
-    resource
-        .add(Link.of(String.format("%s/api/v1/carts/%s", serverUri, entity.getId())).withSelfRel());
+    BeanUtils.copyProperties(entity, resource);
+    resource.id(cid).customerId(uid).items(itemService.toModelList(entity.getItems()));
+    resource.add(linkTo(methodOn(CartsController.class).getCartByCustomerId(uid)).withSelfRel());
+    resource.add(
+        linkTo(methodOn(CartsController.class).getCartItemsByCustomerId(uid))
+            .withRel("cart-items"));
     return resource;
-  }
-
-  public List<Item> itemfromEntities(List<ItemEntity> items) {
-    return items.stream().map(
-        i -> new Item().id(i.getProductId().toString()).unitPrice(i.getPrice())
-            .quantity(i.getQuantity())).collect(toList());
-  }
-
-  public Cart monoToModel(Mono<CartEntity> mEntity, ServerWebExchange exchange) {
-    return getModel(mEntity.map(e -> entityToModel(e, exchange)));
-  }
-
-  public Cart getModel(Mono<Cart> m) {
-    AtomicReference<Cart> model = new AtomicReference<>();
-    m.cache().subscribe(i -> model.set(i));
-    return model.get();
   }
 
   /**
@@ -83,10 +59,10 @@ public class CartRepresentationModelAssembler implements
    *
    * @param entities
    */
-  public Flux<Cart> toListModel(Flux<CartEntity> entities, ServerWebExchange exchange) {
+  public List<Cart> toListModel(Iterable<CartEntity> entities) {
     if (Objects.isNull(entities)) {
-      return Flux.empty();
+      return List.of();
     }
-    return Flux.from(entities.map(e -> entityToModel(e, exchange)));
+    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel).collect(toList());
   }
 }

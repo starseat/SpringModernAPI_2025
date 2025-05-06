@@ -1,36 +1,37 @@
 package com.packt.modern.api.entity;
 
+import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 import java.util.UUID;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * @author : github.com/sharmasourabh
- * @project : Chapter05 - Modern API Development with Spring and Spring Boot Ed 2
- **/
-@Table("ecomm.\"authorization\"")
+ * @project : Chapter06 - Modern API Development with Spring and Spring Boot Ed 2
+ */
+@Entity
+@Table(name = "\"authorization\"")
 public class AuthorizationEntity {
 
   @Id
-  @Column("id")
+  @GeneratedValue
+  @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  @Column("authorized")
+  @Column(name = "AUTHORIZED")
   private boolean authorized;
 
-  @Column("time")
+  @Column(name = "TIME")
   private Timestamp time;
 
-  @Column("message")
+  @Column(name = "MESSAGE")
   private String message;
 
-  @Column("error")
+  @Column(name = "ERROR")
   private String error;
 
-  /*@OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "ORDER_ID", referencedColumnName = "id")*/
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "ORDER_ID", referencedColumnName = "id")
   private OrderEntity orderEntity;
 
   public UUID getId() {
