@@ -138,5 +138,10 @@ error_uri="https://tools.ietf.org/html/rfc6750#section-3.1".
 
 # 참고
 
-- **RSA**: 디지털 서명과 키 설정에 대해서 각각 **연방 정보 처리 표준(Federal Information Processing Standards, FIPS)** 의 FIPS186 과 **특별 간행물(Special Publication, SP)** 의 SP800-56B 을 통해서 승인된 알고리즘.
+- **bcrypt** :
+  - 단방향 암호화를 위해 만들어진 해시 함수
+  - sha256과 같은 기존 해시 함수가 암호화라는 본연의 목적이 아닌 빠르게 데이터를 검색하기 위한 자료구조로 설계됐기 때문에 가지고 있는 취약점을 보완
+- **RSA**: 
+  - RSA를 개발한 사람들인 Rivest, Shamir, Adleman 의 성에서 따옴
+  - 디지털 서명과 키 설정에 대해서 각각 **연방 정보 처리 표준(Federal Information Processing Standards, FIPS)** 의 FIPS186 과 **특별 간행물(Special Publication, SP)** 의 SP800-56B 을 통해서 승인된 알고리즘.
 
